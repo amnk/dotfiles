@@ -1,6 +1,39 @@
 -- Helper functions ---------------------------
-require "windows"
+local windows = require "windows"
 require "mic"
+
+local laptop_display = "Color LCD"
+local right_display = "DELL P2417H"
+
+local work_layout = {
+    {"Slack",             nil,          right_display, nil,                 windows.layout.halfdown, nil},
+    {"Skype",             nil,          right_display, nil,                 windows.layout.halfdown, nil},
+    {"Telegram",          nil,          right_display, nil,                 windows.layout.halfdown, nil},
+    {"iTerm2",            nil,          right_display, hs.layout.maximized, nil,                     nil},
+    {"Code",              nil,          right_display, hs.layout.maximized, nil,                     nil},
+}
+
+local single_layout = {
+    {"Slack",             nil,          laptop_display, hs.layout.maximized, nil,                      nil},
+    {"Skype",             nil,          laptop_display, nil,                 windows.layout.halfright, nil},
+    {"Telegram",          nil,          laptop_display, nil,                 windows.layout.halfright, nil},
+    {"iTerm2",            nil,          laptop_display, hs.layout.maximized, nil,                      nil},
+    {"Code",              nil,          laptop_display, hs.layout.maximized, nil,                      nil},
+}
+
+-- https://github.com/schlomo/hammerspoon-config/blob/master/init.lua#L42
+function screenWatcher_function()
+    newNumberOfScreens = #hs.screen.allScreens()
+
+    if newNumberOfScreens == 1 then
+        hs.layout.apply(single_layout)
+        print('-------- Applied single monitor layout')
+    elseif newNumberOfScreens == 2 then
+        hs.layout.apply(work_layout)
+        print('-------- Applied dual monitor layout')
+    end
+end
+
 -----------------------------------------------
 function createHotkeys()
   ---------------------------------------------------
@@ -14,39 +47,39 @@ function createHotkeys()
 
   -- Window actions with Command+key
   hs.hotkey.bind(cmd_alt, "j", function()
-    resize_win("halfleft")
+    windows.resize_win("halfleft")
   end)
 
   hs.hotkey.bind(cmd_alt, "l", function()
-    resize_win("halfright")
+    windows.resize_win("halfright")
   end)
 
   hs.hotkey.bind(cmd_alt, "i", function()
-    resize_win("halfup")
+    windows.resize_win("halfup")
   end)
 
   hs.hotkey.bind(cmd_alt, ",", function()
-    resize_win("halfdown")
+    windows.resize_win("halfdown")
   end)
 
   hs.hotkey.bind(cmd_alt, "m", function()
-    resize_win("fullscreen")
+    windows.resize_win("fullscreen")
   end)
 
   hs.hotkey.bind(cmd_alt, "k", function()
-    resize_win("center")
+    windows.resize_win("center")
   end)
 
   -- Screen-related actions with Commnad+Shift+key
 
   --Bring focus to next display/screen
   hs.hotkey.bind(cmd_shift, "]", function()
-    focusScreen(hs.window.focusedWindow():screen():next())
+    windows.focusScreen(hs.window.focusedWindow():screen():next())
   end)
 
   --Bring focus to previous display/screen
   hs.hotkey.bind(cmd_shift, "[", function()
-    focusScreen(hs.window.focusedWindow():screen():previous())
+    windows.focusScreen(hs.window.focusedWindow():screen():previous())
   end)
 
   -- Move to the next screen
@@ -67,9 +100,7 @@ function createHotkeys()
 
   -- Hint with all open applications
   hs.hotkey.bind(cmd_shift, "l", function()
-    local all_windows = hs.window.allWindows()
-    hs.hints.windowHints(nil, focusWindow, true)
-    -- hs.hints.windowHints(all_windows, focusWindow)
+    hs.hints.windowHints(nil, windows.focusWindow)
   end)
 
   -- Similar to hints, but different :)
@@ -78,8 +109,8 @@ function createHotkeys()
   end)
 
   -- Lock screen (e.g. launch screensaver which requires password)
-  hs.hotkey.bind(cmd_shift, "k", function()
-    os.execute('/System/Library/Frameworks/ScreenSaver.framework/Resources/ScreenSaverEngine.app/Contents/MacOS/ScreenSaverEngine')
+  hs.hotkey.bind(cmd_shift, "k", function() 
+    hs.caffeinate.startScreensaver()
   end)
 
   -- Mute microphone
@@ -94,21 +125,33 @@ function initGrid()
   hs.grid.setGrid('1x3', 'DELL P2417H')
 end
 ---------------------------------------------
-function init()
-  -- Defaults
+function caffeinateWatcher(event)
+    screenWatcher:start()
+end
+---------------------------------------------
+function main()
+  -- defaults
   hs.hotkey.alertDuration = 0
   hs.hints.showTitleThresh = 20
   hs.hints.titleMaxSize = 6
+  hs.window.animationDuration = 0
+  ------
+  -- startup functions
   createHotkeys()
   initGrid()
-  hs.window.animationDuration = 0
+  ------
+  -- watchers
+  screenWatcher = hs.screen.watcher.new(screenWatcher_function)
+  screenWatcher:start()
+  hs.caffeinate.watcher.new(caffeinateWatcher):start()
+  ------
 end
 
 -- workaround https://github.com/Hammerspoon/hammerspoon/issues/1163
 layout = hs.keycodes.currentLayout()
 if layout ~= "U.S." then
         hs.keycodes.setLayout("U.S.")
-        init()
+        main()
 else
-        init()
+        main()
 end

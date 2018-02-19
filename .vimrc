@@ -15,6 +15,7 @@ if !has("gui_running")
     set mouse=
 endif
 set autoindent              " Carry over indenting from previous line
+set background=dark
 set backspace=2
 set cindent                 " Automatic program indenting
 set encoding=utf8           " UTF-8 by default
@@ -25,7 +26,6 @@ set hidden                  " Allow switching unsaved buffers
 set ignorecase              " Case insensitive
 set incsearch               " Search as you type
 set laststatus=2            " Always show statusline
-set lazyredraw              " redraw only when
 set modelines=1             " Allow local modeline definitions
 set nocompatible
 set noshowmode              " Visible in Lightline
@@ -60,11 +60,19 @@ nnoremap <Leader>0 :10b<CR>
 " Move between open buffers.
 nmap [b :bprev<CR>
 nmap ]b :bnext<CR>
+nmap [B :bfirst<CR>
+nmap ]B :blast<CR>
 nmap [q :cprevious<CR>
 nmap ]q :cnext<CR>
+nmap [Q :cfirst<CR>
+nmap ]Q :clast<CR>
+
+" w0rp/ale keys
+nmap <silent> [c <Plug>(ale_previous_wrap)
+nmap <silent> ]c <Plug>(ale_next_wrap)
 
 " Better fzf
-nmap <Leader>b :Buffers<CR>
+nnoremap <Leader>b :Buffers<CR>
 nmap <Leader>f :Files<CR>
 nmap <Leader>t :Tags<CR>
 nmap <Leader>w :Windows<CR>
@@ -91,19 +99,20 @@ au FileType yaml setlocal tabstop=2|setlocal shiftwidth=2
 autocmd BufEnter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
 " }}}
 " Vim Plug {{{
+syntax enable
 call plug#begin('~/.vim/plugged')
-"Plug 'altercation/vim-colors-solarized'
+Plug 'altercation/vim-colors-solarized'
 Plug 'ajmwagar/vim-deus'
 Plug 'scrooloose/nerdtree'
 Plug 'itchyny/lightline.vim'
 Plug 'taohex/lightline-buffer'
+Plug 'maximbaz/lightline-ale'
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
 Plug 'w0rp/ale'
 Plug 'tpope/vim-fugitive'
 Plug 'qpkorr/vim-bufkill'
 Plug 'bling/vim-bufferline'
-Plug 'haya14busa/incsearch.vim'
 Plug 'airblade/vim-rooter'
 Plug 'universal-ctags/ctags'
 Plug 'majutsushi/tagbar'
@@ -112,7 +121,13 @@ Plug 'hashivim/vim-terraform', { 'for': 'terraform' }
 Plug 'juliosueiras/vim-terraform-completion', { 'for': 'terraform' }
 Plug 'tpope/vim-repeat'
 Plug 'justinmk/vim-sneak'
+Plug 'tpope/vim-unimpaired'
+Plug 'pearofducks/ansible-vim'
+Plug 'fatih/vim-go', { 'for': 'go' }
+Plug 'prabirshrestha/async.vim'
+Plug 'prabirshrestha/vim-lsp'
 call plug#end()
+colorscheme solarized
 " }}}
 " Lightline {{{
 let g:lightline = {
@@ -127,17 +142,26 @@ let g:lightline = {
     \   'left': [ [ 'mode', 'gitbranch', 'paste' ],
     \             [ 'readonly', 'relativepath', 'modified' ],
     \             [ 'bufferline' ]
-    \           ]
+    \           ],
+    \   'right': [ [ 'fileencoding', 'filetype', 'percent', 'lineinfo' ],
+    \              [ 'linter_errors', 'linter_warnings', 'linter_ok' ]
+    \            ]
     \ },
     \ 'component_expand': {
     \   'buffercurrent': 'lightline#buffer#buffercurrent',
     \   'bufferbefore': 'lightline#buffer#bufferbefore',
     \   'bufferafter': 'lightline#buffer#bufferafter',
+    \   'linter_warnings': 'lightline#ale#warnings',
+    \   'linter_errors': 'lightline#ale#errors',
+    \   'linter_ok': 'lightline#ale#ok',
     \ },
     \ 'component_type': {
     \   'buffercurrent': 'tabsel',
     \   'bufferbefore': 'raw',
     \   'bufferafter': 'raw',
+    \   'linter_warnings': 'warning',
+    \   'linter_errors': 'error',
+    \   'linter_ok': 'left',
     \ },
     \ 'component_function': {
     \   'bufferinfo' : 'lightline#buffer#bufferinfo',
@@ -152,11 +176,6 @@ let g:lightline = {
 set rtp+=/usr/local/opt/fzf
 set rtp+=~/.fzf
 command! -bang -nargs=* Find call fzf#vim#grep('rg --column --line-number --no-heading --fixed-strings --ignore-case --no-ignore --hidden --follow --glob "!.git/*" --color "always" '.shellescape(<q-args>), 1, <bang>0)
-" }}}
-" incsearch.vim {{{
-map /  <Plug>(incsearch-forward)
-map ?  <Plug>(incsearch-backward)
-map g/ <Plug>(incsearch-stay)
 " }}}
 " Rooter {{{
 let g:rooter_patterns = ['.git/', '.python-version']
@@ -174,5 +193,38 @@ let g:bufferline_echo = 0
 " }}}
 " nerdtree {{{
 let NERDTreeChDirMode=2
+let NERDTreeShowHidden=1
+" }}}
+" gotags {{{
+let g:tagbar_type_go = {
+    \ 'ctagstype' : 'go',
+    \ 'kinds'     : [
+        \ 'p:package',
+        \ 'i:imports:1',
+        \ 'c:constants',
+        \ 'v:variables',
+        \ 't:types',
+        \ 'n:interfaces',
+        \ 'w:fields',
+        \ 'e:embedded',
+        \ 'm:methods',
+        \ 'r:constructor',
+        \ 'f:functions'
+    \ ],
+    \ 'sro' : '.',
+    \ 'kind2scope' : {
+        \ 't' : 'ctype',
+	\ 'n' : 'ntype'
+    \ },
+    \ 'scope2kind' : {
+        \ 'ctype' : 't',
+	\ 'ntype' : 'n'
+    \ },
+    \ 'ctagsbin'  : 'gotags',
+    \ 'ctagsargs' : '-sort -silent'
+\ }
+" }}}
+" w0rp/ale {{{
+let g:ale_sign_column_always = 1
 " }}}
 " vim:foldmethod=marker:foldlevel=0
