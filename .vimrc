@@ -2,6 +2,7 @@
 " https://github.com/junegunn/vim-plug/wiki/faq#automatic-installation
 if empty(glob('~/.vim/autoload/plug.vim'))
     let g:clone_details = 'https://github.com/junegunn/vim-plug.git $HOME/.vim/bundle/vim-plug'
+    silent call system('mkdir -p ~/.vim/autoload')
     silent call system('git clone --depth 1 '. g:clone_details)
     if v:shell_error | silent call system('git clone ' . g:clone_details) | endif
     silent !ln -s $HOME/.vim/bundle/vim-plug/plug.vim $HOME/.vim/autoload/plug.vim

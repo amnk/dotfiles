@@ -29,7 +29,8 @@ import XMonad.Hooks.EwmhDesktops
 -- utils
 import XMonad.Prompt
 import XMonad.Prompt.RunOrRaise (runOrRaisePrompt)
-import XMonad.Util.Run (spawnPipe)
+import XMonad.Util.Run (spawnPipe, safeSpawn, safeSpawnProg)
+import XMonad.Util.NamedScratchpad
 
 -- For XF86* media keys
 import Graphics.X11.ExtraTypes.XF86
@@ -47,21 +48,36 @@ import System.Taffybar.Hooks.PagerHints (pagerHints)
 --import System.Taffybar.XMonadLog (dbusLogWithPP,taffybarDefaultPP,taffybarColor)
 --
 ------------------------------------------------------------------------
--- Terminal
--- The preferred terminal program, which is used in a binding below and by
--- certain contrib modules.
---
-myTerminal = "/usr/bin/urxvt"
-myFont = "xft:Verdana-10"
---myFont = "xft:Go-Mono-10"
-
+-- Certain helpful programs
+myTerminal = "termite"
+myRofi = "rofi"
+myRofiOpts = ["--combi-modi", "run,window,ssh", "-show", "combi"]
+myCapture = "maim"
+myCaptureDefaults = ["-s", "~/Screenshots/$(date +s).png"]
+myLock = "xscreensaver-command"
+myLockOptions = ["-lock"]
+--myFont = "xft:Anonymous Pro-12:antialias=false:autohint=false"
+myFont = "xft:Anonymous Pro-12"
 ------------------------------------------------------------------------
 -- Workspaces
 -- The default number of workspaces (virtual screens) and their names.
 --
-myWorkspaces = ["1:web","2:im","3:term","4:misc", "5:ide"] ++ map show [6..9]
+myWorkspaces = ["1:web","2:im","3:term","4:code", "5:misc"]
  
-
+------------------------------------------------------------------------
+-- Scratchpads
+scratchpads = [
+    NS "ranger" (myTerminal ++ " -e ranger -t ranger") (iconName =? "ranger") center ,
+    NS "notes" "gvim --role notes ~/notes.txt" (role =? "notes") nonFloating
+ ] where 
+     role = stringProperty "WM_WINDOW_ROLE"
+     iconName = stringProperty "WM_ICON_NAME"
+     center = customFloating $ W.RationalRect l t w h 
+       where
+         h = 0.5
+         w = 0.5
+         t = 0.25
+         l = 0.25
 ------------------------------------------------------------------------
 -- Window rules
 --
@@ -80,17 +96,17 @@ myManageHook = composeOne . concat $
     , [(className =? x <||> title =? x <||> resource =? x) -?> doShift "1:web" | x <- my1Shifts]
     , [(className =? x <||> title =? x <||> resource =? x) -?> doShift "2:im" | x <- my2Shifts]
     , [(className =? x <||> title =? x <||> resource =? x) -?> doShift "3:term" | x <- my3Shifts]
-    , [(className =? x <||> title =? x <||> resource =? x) -?> doShift "5:ide" | x <- my5Shifts]
-    ]
+    , [(className =? x <||> title =? x <||> resource =? x) -?> doShift "4:code" | x <- my4Shifts]
+    ] 
     where
       myCFloats = ["MPlayer", "XCalc", "Arandr", "Xmessage", "Wicd-client.py"]
       myTFloats = ["Downloads", "Save As..."]
       myRFloats = []
       myIgnores = ["jetbrains-idea"]
-      my1Shifts = ["Google-chrome", "Firefox", "Firefox-dev"]
-      my2Shifts = ["skype"]
-      my3Shifts = ["urxvt"]
-      my5Shifts = ["jetbrains-idea"]
+      my1Shifts = ["Google-chrome", "Firefox", "Firefox-dev", "chromium-browser"]
+      my2Shifts = ["skype", "Telegram"]
+      my3Shifts = ["urxvt", "st", "Alacritty", "termite"]
+      my4Shifts = ["jetbrains-idea"]
 
 ------------------------------------------------------------------------
 -- Layouts
@@ -113,7 +129,6 @@ myLayout = onWorkspace "1:web" myFull
        myFull = avoidStruts $ smartBorders Full
        myNoBorders = smartBorders Full
 
-
 ------------------------------------------------------------------------
 -- Colors and borders
 --
@@ -134,32 +149,6 @@ tabConfig = defaultTheme {
 -- Width of the window border in pixels.
 myBorderWidth = 1
 
------------------------------------------------------------------------
--- Grid configurations
-
--- runOrRaisePrompt config, based on default greenXPConfig
-myXPConfig :: XPConfig
-myXPConfig = greenXPConfig { 
-                            font = myFont
-                           , position = Bottom
-                           , height   = 14
-                           , defaultText = ""
-                           }
--- Grid configuration
-myGSConfig :: HasColorizer a => GSConfig a
-myGSConfig = (buildDefaultGSConfig defaultColorizer) {
-                                                       gs_font = myFont
-                                                     , gs_cellheight = 40
-                                                     }
--- Custom menu, displayed by Grid, for fast access to certain functions
--- binary should be in $PATH
-myMenu = [
-          "xShutdown"
-          , "xReboot"
-          , "xSuspend"
-          , "arandr"
-         ]
-
 ------------------------------------------------------------------------
 -- Key bindings
 --
@@ -175,49 +164,33 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
   --
 
   -- Start a terminal.  Terminal to start is specified by myTerminal variable.
-  [ ((modMask , xK_Return), spawn $ XMonad.terminal conf)
+  [ ((modMask , xK_Return), safeSpawn myTerminal [])
 
   -- Lock the screen using xscreensaver.
   , ((modMask , xK_F12), spawn "slock")
 
   -- Launch prompt
-  -- see for details:
-  -- http://braincrater.wordpress.com/2008/11/29/pimp-your-xmonad-3-prompt/
-  , ((modMask, xK_p), runOrRaisePrompt myXPConfig)
-
-  -- Mute volume.
-  -- See https://bugs.launchpad.net/ubuntu/+source/pulseaudio/+bug/878986
-  -- http://www.commandlinefu.com/commands/view/12771/a-simple-command-to-toggle-mute-with-pulseaudio-sink-0
-  --, ((0, xF86XK_AudioMute), spawn "amixer -D pulse set Master 1+ togglemute")
-
-  --, ((0, xF86XK_AudioMute), 
-  , ((0, xF86XK_AudioMute), toggleMuteChannels mydefaultChannels  >> return ())
-  --  spawn "pactl list sinks | grep -q Mute:.no && pactl set-sink-mute 0 1 || pactl set-sink-mute 0 0")
-    
-
-  -- Decrease volume.
-  --, ((0, xF86XK_AudioLowerVolume), spawn "amixer -q set Master 10%-")
-  , ((0, xF86XK_AudioLowerVolume), lowerVolume 3 >> return ())
-
-  -- Increase volume.
-  --, ((0, xF86XK_AudioRaiseVolume), spawn "amixer -q set Master 10%+")
-  , ((0, xF86XK_AudioRaiseVolume), raiseVolume 3 >> return ())
-
-  -- Display menu.
-  , ((modMask .|. shiftMask, xK_s), spawnSelected myGSConfig myMenu)
-
-  -- Display grid of active windows
-  , ((modMask, xK_s), goToSelected myGSConfig)
-
-  -- Screenshots
-  , ((0, xK_Print), spawn "shutter -f")
-  , ((shiftMask, xK_Print), spawn "shutter -a")
-  , ((controlMask, xK_Print), spawn "shutter -s")
+  , ((modMask, xK_p), safeSpawn myRofi myRofiOpts)
 
   -- Toggle doc gaps
-  ,((modMask, xK_b     ), sendMessage ToggleStruts)
+  , ((modMask, xK_b     ), sendMessage ToggleStruts)
 
+  -- Toggle ranger
+  , ((modMask, xK_s), namedScratchpadAction scratchpads "ranger")
   --------------------------------------------------------------------
+  -- Support of Fn keys
+  -- Fn+F3
+  , ((0, xF86XK_ScreenSaver), safeSpawn myLock myLockOptions)
+  -- Fn+F6
+  , ((0, xF86XK_WebCam), safeSpawn myCapture myCaptureDefaults)
+  -- Fn+F8
+  , ((0, xF86XK_MonBrightnessUp), safeSpawn "xbacklight" ["-inc", "10"])
+  -- Fn+F9
+  , ((0, xF86XK_MonBrightnessDown), safeSpawn "xbacklight" ["-dec", "10"])
+  , ((0, xF86XK_AudioMute), toggleMuteChannels mydefaultChannels  >> return ())
+  , ((0, xF86XK_AudioLowerVolume), lowerVolume 3 >> return ())
+  , ((0, xF86XK_AudioRaiseVolume), raiseVolume 3 >> return ())
+ --------------------------------------------------------------------
   -- "Standard" xmonad key bindings
   --
 
@@ -226,9 +199,6 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
 
   -- Cycle through the available layout algorithms.
   , ((modMask, xK_space), sendMessage NextLayout)
-
-  --  Reset the layouts on the current workspace to default.
-  , ((modMask .|. shiftMask, xK_space), setLayout $ XMonad.layoutHook conf)
 
   -- Resize viewed windows to the correct size.
   , ((modMask, xK_n), refresh)
@@ -310,7 +280,7 @@ myMouseBindings (XConfig {XMonad.modMask = modMask}) = M.fromList $
 --
 myStartupHook = do
     setWMName "LG3D"
-    spawn "~/.xmonad/bin/startup-hook.sh"
+    safeSpawn "polybar" ["default"]
     
 ------------------------------------------------------------------------
 -- logTitles funtion, to pass all windows in current workspace (and not
@@ -354,13 +324,17 @@ logTitles ppFocus =
 -- Run xmonad with all the defaults we set up.
 --
 
+
 main = do
 --  client <- connectSession
   xmonad $ ewmh $ pagerHints myDefaults 
---{
---               logHook = dbusLogWithPP client taffybarPP >> updatePointer (0.5, 0.5) (0, 0)
-  --         } 
- 
+  --xmonad $ ewmh myDefaults 
+--main = xmonad =<< statusBar myBar myPP toggleStrutsKey myDefaults
+--myBar = "xmobar"
+--myPP = xmobarPP { ppCurrent = xmobarColor "#429942" "" . wrap "<" ">" }
+--toggleStrutsKey XConfig {XMonad.modMask = modMask} = (modMask, xK_B)
+
+
 ------------------------------------------------------------------------
 -- Xmonad default configuration, overriden by custom values in this file
 -- 
@@ -379,8 +353,8 @@ myDefaults = defaultConfig {
     , mouseBindings      = myMouseBindings
  
     -- hooks, layouts
-    , layoutHook         = myLayout
-    , manageHook         = fullscreenManageHook <+> manageDocks <+> myManageHook
+    , layoutHook         = smartBorders $ myLayout
+    , manageHook         = fullscreenManageHook <+> manageDocks <+> myManageHook <+> namedScratchpadManageHook scratchpads
     , startupHook        = myStartupHook
     , handleEventHook    = docksEventHook <+> fullscreenEventHook
 }

@@ -6,9 +6,9 @@ import System.Taffybar.SimpleClock
 import Data.List
 
 main = do
-   let cfg = defaultTaffybarConfig { barHeight = 15
+   let cfg = defaultTaffybarConfig { barHeight = 20
                                    }
-       clock = textClockNew Nothing "%a %b %_d %H:%M" 1
+       clock = textClockNew Nothing "<span color='red'>%a %b %_d %H:%M</span>" 1
        bat = batteryBarNew defaultBatteryConfig 30
        pager = taffyPagerNew defaultPagerConfig
        tray = systrayNew

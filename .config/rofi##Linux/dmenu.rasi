@@ -1,0 +1,50 @@
+*{
+    background: argb:cc17333e;
+    background-color: @background;
+    border-color:     White;
+    text-color:       White;
+    font:             "FontAwesome 14";
+}
+
+configuration {
+  display-window:    "";
+  display-run:     " " ;
+  show-icons: true;
+}
+
+#window {
+  transparency: "real";
+  anchor:     south;
+  location:   south;
+  width:      100%;
+  padding:    0px;
+  children:   [ horibox ];
+}
+
+#horibox {
+  orientation: horizontal;
+  children:   [ prompt, entry, listview ];
+}
+
+
+#listview {
+  layout:     horizontal;
+  spacing:    5px;
+  background-color: transparent;
+  lines:      100;
+}
+
+#entry {
+  expand:     false;
+  width:      10em;
+}
+
+#element {
+  padding: 2px 2px;
+}
+
+#element selected {
+  background-color: transparent;
+}
+
+

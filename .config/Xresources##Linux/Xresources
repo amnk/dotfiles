@@ -1,0 +1,2 @@
+#include ".config/Xresources/Xresources.d/solarized-dark"
+#include ".config/Xresources/Xresources.d/rofi"
