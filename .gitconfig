@@ -1,5 +1,4 @@
-[user]
-	name = amnk
-        email = amnk@users.noreply.github.com
-[includeIf "gitdir:~/work/me-project"]
+[includeIf "gitdir:~/**"]
+        path = .gitconfig_personal
+[includeIf "gitdir:~/work/me-project/**"]
         path = ~/work/me-project/.gitconfig

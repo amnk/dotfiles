@@ -127,6 +127,7 @@ Plug 'pearofducks/ansible-vim'
 Plug 'fatih/vim-go', { 'for': 'go' }
 Plug 'prabirshrestha/async.vim'
 Plug 'prabirshrestha/vim-lsp'
+Plug 'vimwiki/vimwiki'
 call plug#end()
 colorscheme solarized
 " }}}
@@ -227,5 +228,10 @@ let g:tagbar_type_go = {
 " }}}
 " w0rp/ale {{{
 let g:ale_sign_column_always = 1
+" }}}
+" vimwiki/vimwiki {{{
+let g:vimwiki_list = [
+    \ {'path': '~/Dropbox/wiki/personal.wiki'}
+    \ ]
 " }}}
 " vim:foldmethod=marker:foldlevel=0
