@@ -1,4 +1,6 @@
 [includeIf "gitdir:~/**"]
         path = .gitconfig_personal
+[includeIf "gitdir:/Volumes/src/**"]
+        path = .gitconfig_personal
 [includeIf "gitdir:~/work/me-project/**"]
         path = ~/work/me-project/.gitconfig
