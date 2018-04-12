@@ -1,37 +1,73 @@
 -- Helper functions ---------------------------
 local windows = require "windows"
+local utils = require "utils"
 require "mic"
 
 local laptop_display = "Color LCD"
 local right_display = "DELL P2417H"
 
 local work_layout = {
-    {"Slack",             nil,          right_display, nil,                 windows.layout.halfdown, nil},
-    {"Skype",             nil,          right_display, nil,                 windows.layout.halfdown, nil},
-    {"Telegram",          nil,          right_display, nil,                 windows.layout.halfdown, nil},
-    {"iTerm2",            nil,          right_display, hs.layout.maximized, nil,                     nil},
-    {"Code",              nil,          right_display, hs.layout.maximized, nil,                     nil},
+  {"Firefox Developer Edition", nil, laptop_display, hs.layout.maximized, nil,                     nil},
+  {"Slack",                     nil, right_display,  nil,                 windows.layout.halfdown, nil},
+  {"Skype",                     nil, right_display,  nil,                 windows.layout.halfdown, nil},
+  {"Telegram",                  nil, right_display,  nil,                 windows.layout.halfdown, nil},
+  {"iTerm2",                    nil, right_display,  hs.layout.maximized, nil,                     nil},
+  {"Code",                      nil, right_display,  hs.layout.maximized, nil,                     nil},
 }
 
 local single_layout = {
-    {"Slack",             nil,          laptop_display, hs.layout.maximized, nil,                      nil},
-    {"Skype",             nil,          laptop_display, nil,                 windows.layout.halfright, nil},
-    {"Telegram",          nil,          laptop_display, nil,                 windows.layout.halfright, nil},
-    {"iTerm2",            nil,          laptop_display, hs.layout.maximized, nil,                      nil},
-    {"Code",              nil,          laptop_display, hs.layout.maximized, nil,                      nil},
+  {"Firefox Developer Edition", nil, laptop_display, hs.layout.maximized, nil,                      nil},
+  {"Slack",                     nil, laptop_display, hs.layout.maximized, nil,                      nil},
+  {"Skype",                     nil, laptop_display, nil,                 windows.layout.halfright, nil},
+  {"Telegram",                  nil, laptop_display, nil,                 windows.layout.halfright, nil},
+  {"iTerm2",                    nil, laptop_display, hs.layout.maximized, nil,                      nil},
+  {"Code",                      nil, laptop_display, hs.layout.maximized, nil,                      nil},
 }
+
+local ovpn_choices = {
+  {
+    ["text"] = "M1E Au",
+    ["ovpn"] = "aas2-mgt-prd-ovn-amgk",
+    ["disconnect_others"] = true,
+  },
+  {
+    ["text"] = "M1E Uk",
+    ["ovpn"] = "aew2-mgt-prd-ovn-amgk",
+    ["disconnect_others"] = true,
+  },
+  {
+    ["text"] = "DAT Us",
+    ["ovpn"] = "dat_amgk",
+    ["disconnect_others"] = true,
+  },
+  {
+    ["text"] = "M1E Us",
+    ["ovpn"] = "m1e_amgk",
+    ["disconnect_others"] = true,
+  },
+  {
+    ["text"] = "MTC Us",
+    ["ovpn"] = "mtc_amgk",
+    ["disconnect_others"] = true,
+  }
+}
+
+local ovpn_choices_total = 5
+
+-- tunnelblick chooser global
+local chooser = nil
 
 -- https://github.com/schlomo/hammerspoon-config/blob/master/init.lua#L42
 function screenWatcher_function()
-    newNumberOfScreens = #hs.screen.allScreens()
+  newNumberOfScreens = #hs.screen.allScreens()
 
-    if newNumberOfScreens == 1 then
-        hs.layout.apply(single_layout)
-        print('-------- Applied single monitor layout')
-    elseif newNumberOfScreens == 2 then
-        hs.layout.apply(work_layout)
-        print('-------- Applied dual monitor layout')
-    end
+  if newNumberOfScreens == 1 then
+    hs.layout.apply(single_layout)
+    print('-------- Applied single monitor layout')
+  elseif newNumberOfScreens == 2 then
+    hs.layout.apply(work_layout)
+    print('-------- Applied dual monitor layout')
+  end
 end
 
 -----------------------------------------------
@@ -118,6 +154,15 @@ function createHotkeys()
     toggleMicMute()
   end)
 
+  -- Toggle Tunnelblick chooser
+  hs.hotkey.bind(cmd_shift, "t", function()
+    if chooser:isVisible() then
+      chooser:hide()
+    else
+      chooser:show()
+    end
+  end)
+
   hs.alert.show("Hammerspoon, at your service.")
 end
 ---------------------------------------------
@@ -126,9 +171,26 @@ function initGrid()
 end
 ---------------------------------------------
 function caffeinateWatcher(event)
-    screenWatcher:start()
+  screenWatcher:start()
 end
 ---------------------------------------------
+--
+--
+function ovpn_chooser_function(vpn)
+  if vpn["disconnect_others"] then
+    utils.disconnectTunnelblickVPNs()
+    hs.timer.doAfter(10, utils.connectTunnelblickVPN(vpn["ovpn"]))
+  else
+    utils.connectTunnelblickVPN(vpn["ovpn"])
+  end
+end
+--
+function ovpn_chooser_start()
+  chooser = hs.chooser.new(ovpn_chooser_function)
+  chooser:choices(ovpn_choices)
+  chooser:rows(ovpn_choices_total)
+end
+--
 function main()
   -- defaults
   hs.hotkey.alertDuration = 0
@@ -145,13 +207,15 @@ function main()
   screenWatcher:start()
   hs.caffeinate.watcher.new(caffeinateWatcher):start()
   ------
+  -- tunnelblick control
+  ovpn_chooser_start()
 end
 
 -- workaround https://github.com/Hammerspoon/hammerspoon/issues/1163
 layout = hs.keycodes.currentLayout()
 if layout ~= "U.S." then
-        hs.keycodes.setLayout("U.S.")
-        main()
+  hs.keycodes.setLayout("U.S.")
+  main()
 else
-        main()
+  main()
 end
