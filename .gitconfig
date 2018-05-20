@@ -4,3 +4,7 @@
         path = .gitconfig_personal
 [includeIf "gitdir:~/work/me-project/**"]
         path = ~/work/me-project/.gitconfig
+[status]
+	submoduleSummary = true
+[branch]
+	autosetupmerge = always
