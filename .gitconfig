@@ -8,3 +8,5 @@
 	submoduleSummary = true
 [branch]
 	autosetupmerge = always
+[push]
+	default = current
