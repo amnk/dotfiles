@@ -1,6 +1,6 @@
 -- Helper functions ---------------------------
-local windows = require "windows"
-local utils = require "utils"
+windows = require "windows"
+utils = require "utils"
 require "mic"
 
 local laptop_display = "Color LCD"
@@ -136,7 +136,7 @@ function createHotkeys()
 
   -- Hint with all open applications
   hs.hotkey.bind(cmd_shift, "l", function()
-    hs.hints.windowHints(nil, windows.focusWindow)
+    hs.hints.windowHints(nil, windows.focusWindow, false)
   end)
 
   -- Similar to hints, but different :)

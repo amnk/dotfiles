@@ -878,11 +878,11 @@
 	<key>NSWindow Frame NSFontPanel</key>
 	<string>614 141 445 399 0 0 1280 778 </string>
 	<key>NSWindow Frame SUUpdateAlert</key>
-	<string>1510 26 620 392 1280 -1120 1080 1920 </string>
+	<string>330 290 620 392 0 0 1280 778 </string>
 	<key>NSWindow Frame SharedPreferences</key>
-	<string>1377 -258 796 473 1280 -1120 1080 1920 </string>
+	<string>1330 -260 796 486 1280 -1120 1080 1920 </string>
 	<key>NSWindow Frame iTerm Window 0</key>
-	<string>0 23 1280 755 0 0 1280 778 </string>
+	<string>1280 -1098 1080 1898 1280 -1120 1080 1920 </string>
 	<key>NSWindow Frame iTerm Window 1</key>
 	<string>0 304 570 377 0 0 1280 778 </string>
 	<key>New Bookmarks</key>
@@ -2447,7 +2447,7 @@
 	<key>SUHasLaunchedBefore</key>
 	<true/>
 	<key>SULastCheckTime</key>
-	<date>2018-02-20T22:33:43Z</date>
+	<date>2018-09-19T12:03:10Z</date>
 	<key>SUSendProfileInfo</key>
 	<false/>
 	<key>SavePasteHistory</key>
@@ -2476,6 +2476,8 @@
 	<integer>1</integer>
 	<key>TabViewType</key>
 	<integer>0</integer>
+	<key>TerminalVMargin</key>
+	<integer>1</integer>
 	<key>ThreeFingerEmulates</key>
 	<false/>
 	<key>TmuxDashboardLimit</key>
@@ -2507,7 +2509,7 @@
 	<key>findRegex_iTerm</key>
 	<false/>
 	<key>iTerm Version</key>
-	<string>3.1.5</string>
+	<string>3.2.0</string>
 	<key>kCPKSelectionViewPreferredModeKey</key>
 	<integer>0</integer>
 	<key>kCPKSelectionViewShowHSBTextFieldsKey</key>

@@ -34,28 +34,32 @@ set number
 set ruler                   " Show row/col and percentage
 set scroll=4                " Number of lines to scroll with ^U/^D
 set scrolloff=5             " Keep cursor away from this many chars top/bot
-set showtabline=2           " Always show tabline
+set showtabline=0           " Never show tabline
 " https://github.com/justinmk/vim-sneak/issues/102
 set showmatch               " Hilight matching braces/parens/etc.
 set visualbell t_vb=        " No flashing or beeping at all
 set wildmenu                " visual autocomplete
+set nofoldenable            " no automated fold
 " }}}
 " Keybindings {{{
 
 " Remap <Leader>
 let g:mapleader=','
 
+" Better shortcuts
+nnoremap ; :
+
 " Quickly switch buffers
-nnoremap <Leader>1 :1b<CR>
-nnoremap <Leader>2 :2b<CR>
-nnoremap <Leader>3 :3b<CR>
-nnoremap <Leader>4 :4b<CR>
-nnoremap <Leader>5 :5b<CR>
-nnoremap <Leader>6 :6b<CR>
-nnoremap <Leader>7 :7b<CR>
-nnoremap <Leader>8 :8b<CR>
-nnoremap <Leader>9 :9b<CR>
-nnoremap <Leader>0 :10b<CR>
+nmap <Leader>1 <Plug>lightline#bufferline#go(1)
+nmap <Leader>2 <Plug>lightline#bufferline#go(2)
+nmap <Leader>3 <Plug>lightline#bufferline#go(3)
+nmap <Leader>4 <Plug>lightline#bufferline#go(4)
+nmap <Leader>5 <Plug>lightline#bufferline#go(5)
+nmap <Leader>6 <Plug>lightline#bufferline#go(6)
+nmap <Leader>7 <Plug>lightline#bufferline#go(7)
+nmap <Leader>8 <Plug>lightline#bufferline#go(8)
+nmap <Leader>9 <Plug>lightline#bufferline#go(9)
+nmap <Leader>0 <Plug>lightline#bufferline#go(10)
 
 " Maybe just install 'tpope/vim-unimpaired' ?
 " Move between open buffers.
@@ -77,7 +81,7 @@ nnoremap <Leader>b :Buffers<CR>
 nmap <Leader>f :Files<CR>
 nmap <Leader>t :Tags<CR>
 nmap <Leader>w :Windows<CR>
-nmap <Leader>g :Find<CR>
+nmap <Leader>g :Rg<CR>
 
 " Bufkill
 nmap <Leader>k :BD<CR>
@@ -85,8 +89,6 @@ nmap <Leader>k :BD<CR>
 " Tagbar
 nmap <F8> :TagbarToggle<CR>
 
-" NerdTree
-map <F2> :NERDTreeToggle<CR>
 " }}}
 " AutoGroups {{{
 " https://github.com/junegunn/fzf.vim/issues/123
@@ -97,73 +99,59 @@ au BufEnter *.sh setlocal tabstop=2|setlocal shiftwidth=2|setlocal softtabstop=2
 au BufEnter *.py setlocal tabstop=4
 au FileType terraform setlocal commentstring=#%s
 au FileType yaml setlocal tabstop=2|setlocal shiftwidth=2
+au FileType groovy setlocal tabstop=4|setlocal shiftwidth=4
 autocmd BufEnter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
 " }}}
 " Vim Plug {{{
 syntax enable
 call plug#begin('~/.vim/plugged')
 Plug 'altercation/vim-colors-solarized'
-Plug 'ajmwagar/vim-deus'
-Plug 'scrooloose/nerdtree'
 Plug 'itchyny/lightline.vim'
-Plug 'taohex/lightline-buffer'
+Plug 'mgee/lightline-bufferline'
 Plug 'maximbaz/lightline-ale'
-Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
 Plug 'w0rp/ale'
 Plug 'tpope/vim-fugitive'
 Plug 'qpkorr/vim-bufkill'
-Plug 'bling/vim-bufferline'
 Plug 'airblade/vim-rooter'
 Plug 'universal-ctags/ctags'
 Plug 'majutsushi/tagbar'
-Plug 'tpope/vim-commentary'
 Plug 'hashivim/vim-terraform', { 'for': 'terraform' }
 Plug 'juliosueiras/vim-terraform-completion', { 'for': 'terraform' }
-Plug 'tpope/vim-repeat'
 Plug 'justinmk/vim-sneak'
-Plug 'tpope/vim-unimpaired'
 Plug 'pearofducks/ansible-vim'
-Plug 'fatih/vim-go', { 'for': 'go' }
+Plug 'fatih/vim-go', { 'for': ['go', 'gohtmltmpl'], 'do': ':GoUpdateBinaries' }
 Plug 'prabirshrestha/async.vim'
 Plug 'prabirshrestha/vim-lsp'
-Plug 'vimwiki/vimwiki'
+Plug 'yggdroot/indentline'
+Plug 'yuttie/comfortable-motion.vim'
 call plug#end()
+
 colorscheme solarized
 " }}}
 " Lightline {{{
 let g:lightline = {
     \ 'colorscheme': 'solarized',
-    \ 'tabline': {
-    \   'left': [ [ 'bufferinfo' ],
-    \             [ 'separator' ],
-    \             [ 'bufferbefore', 'buffercurrent', 'bufferafter' ], ],
-    \   'right': [ [  ], ],
-    \ },
     \ 'active': {
     \   'left': [ [ 'mode', 'gitbranch', 'paste' ],
-    \             [ 'readonly', 'relativepath', 'modified' ],
-    \             [ 'bufferline' ]
+    \             [ 'readonly' ],
+    \             [ 'buffers' ],
     \           ],
     \   'right': [ [ 'fileencoding', 'filetype', 'percent', 'lineinfo' ],
     \              [ 'linter_errors', 'linter_warnings', 'linter_ok' ]
     \            ]
     \ },
     \ 'component_expand': {
-    \   'buffercurrent': 'lightline#buffer#buffercurrent',
-    \   'bufferbefore': 'lightline#buffer#bufferbefore',
-    \   'bufferafter': 'lightline#buffer#bufferafter',
     \   'linter_warnings': 'lightline#ale#warnings',
     \   'linter_errors': 'lightline#ale#errors',
     \   'linter_ok': 'lightline#ale#ok',
+    \   'buffers': 'lightline#bufferline#buffers',
     \ },
     \ 'component_type': {
-    \   'buffercurrent': 'tabsel',
-    \   'bufferbefore': 'raw',
-    \   'bufferafter': 'raw',
     \   'linter_warnings': 'warning',
     \   'linter_errors': 'error',
     \   'linter_ok': 'left',
+    \   'buffers': 'tabsel',
     \ },
     \ 'component_function': {
     \   'bufferinfo' : 'lightline#buffer#bufferinfo',
@@ -173,65 +161,32 @@ let g:lightline = {
     \   'separator': '',
     \ },
     \ }
+let g:lightline#bufferline#show_number=2
 " }}}
 " fzf {{{
 set rtp+=/usr/local/opt/fzf
-set rtp+=~/.fzf
-command! -bang -nargs=* Find call fzf#vim#grep('rg --column --line-number --no-heading --fixed-strings --ignore-case --no-ignore --hidden --follow --glob "!.git/*" --color "always" '.shellescape(<q-args>), 1, <bang>0)
 " }}}
 " Rooter {{{
 let g:rooter_patterns = ['.git/', '.python-version']
 " }}}
 " tagbar {{{
-nmap <F8> :TagbarToggle<CR>
+"nmap <F8> :TagbarToggle<CR>
 " }}}
 " vim-terraform {{{
 let g:terraform_fold_sections=1
 let g:terraform_remap_spacebar=1
 let g:terraform_fmt_on_save=1
 " }}}
-" bling/vim-bufferline {{{
-let g:bufferline_echo = 0
-" }}}
-" nerdtree {{{
-let NERDTreeChDirMode=2
-let NERDTreeShowHidden=1
-" }}}
-" gotags {{{
-let g:tagbar_type_go = {
-    \ 'ctagstype' : 'go',
-    \ 'kinds'     : [
-        \ 'p:package',
-        \ 'i:imports:1',
-        \ 'c:constants',
-        \ 'v:variables',
-        \ 't:types',
-        \ 'n:interfaces',
-        \ 'w:fields',
-        \ 'e:embedded',
-        \ 'm:methods',
-        \ 'r:constructor',
-        \ 'f:functions'
-    \ ],
-    \ 'sro' : '.',
-    \ 'kind2scope' : {
-        \ 't' : 'ctype',
-	\ 'n' : 'ntype'
-    \ },
-    \ 'scope2kind' : {
-        \ 'ctype' : 't',
-	\ 'ntype' : 'n'
-    \ },
-    \ 'ctagsbin'  : 'gotags',
-    \ 'ctagsargs' : '-sort -silent'
-\ }
-" }}}
 " w0rp/ale {{{
 let g:ale_sign_column_always = 1
+let g:ale_lint_on_text_changed = 1
 " }}}
-" vimwiki/vimwiki {{{
-let g:vimwiki_list = [
-    \ {'path': '~/Dropbox/wiki/personal.wiki'}
-    \ ]
+" yggdroot/indentline {{{
+let g:indentLine_setColors = 0
+let g:indentLine_char = '|'
+" }}}
+" yuttie/comfortable-motion.vim {{{
+let g:comfortable_motion_scroll_down_key = "j"
+let g:comfortable_motion_scroll_up_key = "k"
 " }}}
 " vim:foldmethod=marker:foldlevel=0
