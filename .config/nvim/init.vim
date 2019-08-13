@@ -95,11 +95,11 @@ nmap <silent> [c <Plug>(ale_previous_wrap)
 nmap <silent> ]c <Plug>(ale_next_wrap)
 
 " Better fzf
-nnoremap <Leader>fb :Buffers<CR>
-nnoremap <Leader>ff :Files<CR>
-nnoremap <Leader>ft :Tags<CR>
-nnoremap <Leader>fw :Windows<CR>
-nnoremap <Leader>fg :Rg<CR>
+nnoremap <Leader>b :Buffers<CR>
+nnoremap <Leader>f :Files<CR>
+nnoremap <Leader>t :Tags<CR>
+nnoremap <Leader>w :Windows<CR>
+nnoremap <Leader>g :Rg<CR>
 
 " Git shortcuts
 nnoremap <leader>ga :Git add %<CR><CR>

@@ -26,11 +26,6 @@ local single_layout = {
 
 local ovpn_choices = {
   {
-    ["text"] = "M1E Au",
-    ["ovpn"] = "aas2-mgt-prd-ovn-amgk",
-    ["disconnect_others"] = true,
-  },
-  {
     ["text"] = "M1E Uk",
     ["ovpn"] = "aew2-mgt-prd-ovn-amgk",
     ["disconnect_others"] = true,
@@ -42,17 +37,17 @@ local ovpn_choices = {
   },
   {
     ["text"] = "M1E Us",
-    ["ovpn"] = "m1e_amgk",
+    ["ovpn"] = "aue1-m1e-prd-ovn-omogylchenko",
     ["disconnect_others"] = true,
   },
   {
-    ["text"] = "MTC Us",
-    ["ovpn"] = "mtc_amgk",
+    ["text"] = "DLZ Us",
+    ["ovpn"] = "aue1-dlz-prd-ovn-amgk",
     ["disconnect_others"] = true,
   }
 }
 
-local ovpn_choices_total = 5
+local ovpn_choices_total = 4
 
 -- tunnelblick chooser global
 local chooser = nil

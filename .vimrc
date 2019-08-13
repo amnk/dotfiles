@@ -1,16 +1,36 @@
 " Automatic installation {{{
-" https://github.com/junegunn/vim-plug/wiki/faq#automatic-installation
-if empty(glob('~/.vim/autoload/plug.vim'))
-    let g:clone_details = 'https://github.com/junegunn/vim-plug.git $HOME/.vim/bundle/vim-plug'
-    silent call system('mkdir -p ~/.vim/autoload')
-    silent call system('git clone --depth 1 '. g:clone_details)
-    if v:shell_error | silent call system('git clone ' . g:clone_details) | endif
-    silent !ln -s $HOME/.vim/bundle/vim-plug/plug.vim $HOME/.vim/autoload/plug.vim
-    augroup FirstPlugInstall
-        autocmd! VimEnter * PlugInstall --sync | source $MYVIMRC
-    augroup END
+" https://github.com/junegunn/vim-plug/wiki/tips#automatic-installation
+if empty(glob('~/.config/nvim/autoload/plug.vim'))
+  silent !curl -fLo ~/.config/nvim/autoload/plug.vim --create-dirs
+    \ https://raw.githubusercontent.com/junegunn/vim-plug/f1ad2d864ab43c56bf86ce01be9971f62bc14f6c/plug.vim
+  autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
 endif
 " }}}
+" Vim Plug {{{
+call plug#begin('~/.vim/plugged')
+Plug '0x84/vim-coderunner'
+Plug 'airblade/vim-rooter'
+Plug 'altercation/vim-colors-solarized'
+Plug 'fatih/vim-go', { 'for': ['go', 'gohtmltmpl'], 'do': ':GoUpdateBinaries' }
+Plug 'hashivim/vim-terraform', { 'for': 'terraform' }
+Plug 'itchyny/lightline.vim'
+Plug 'juliosueiras/vim-terraform-completion', { 'for': 'terraform' }
+Plug 'junegunn/fzf.vim'
+Plug 'justinmk/vim-sneak'
+Plug 'majutsushi/tagbar'
+Plug 'maximbaz/lightline-ale'
+Plug 'mgee/lightline-bufferline'
+Plug 'pearofducks/ansible-vim'
+Plug 'prabirshrestha/async.vim'
+Plug 'prabirshrestha/vim-lsp'
+Plug 'tpope/vim-fugitive'
+Plug 'universal-ctags/ctags'
+Plug 'w0rp/ale'
+Plug 'yggdroot/indentline'
+Plug 'yuttie/comfortable-motion.vim'
+call plug#end()
+" }}}
+
 " Vim options {{{
 if !has("gui_running")
     set mouse=
@@ -40,14 +60,12 @@ set showmatch               " Hilight matching braces/parens/etc.
 set visualbell t_vb=        " No flashing or beeping at all
 set wildmenu                " visual autocomplete
 set nofoldenable            " no automated fold
+colorscheme solarized
 " }}}
 " Keybindings {{{
 
 " Remap <Leader>
 let g:mapleader=','
-
-" Better shortcuts
-nnoremap ; :
 
 " Quickly switch buffers
 nmap <Leader>1 <Plug>lightline#bufferline#go(1)
@@ -78,56 +96,53 @@ nmap <silent> ]c <Plug>(ale_next_wrap)
 
 " Better fzf
 nnoremap <Leader>b :Buffers<CR>
-nmap <Leader>f :Files<CR>
-nmap <Leader>t :Tags<CR>
-nmap <Leader>w :Windows<CR>
-nmap <Leader>g :Rg<CR>
+nnoremap <Leader>f :Files<CR>
+nnoremap <Leader>t :Tags<CR>
+nnoremap <Leader>w :Windows<CR>
+nnoremap <Leader>g :Rg<CR>
 
-" Bufkill
-nmap <Leader>k :BD<CR>
+" Git shortcuts
+nnoremap <leader>ga :Git add %<CR><CR>
+nnoremap <leader>gb :Gblame<CR>
+nnoremap <leader>gc :Gcommit -v -q<CR>
+nnoremap <leader>gca :Gcommit --amend --noedit<CR>
+nnoremap <leader>gcon :Git checkout -b<SPACE>
+nnoremap <leader>ggp :Gpush -u origin<CR>
+nnoremap <leader>gst :Gstatus<CR>
 
 " Tagbar
-nmap <F8> :TagbarToggle<CR>
+nnoremap <F8> :TagbarToggle<CR>
+
+" indentLine
+nnoremap <Leader>i :IndentLinesToggle<CR>
+
+" 0x84/vim-coderunner
+nnoremap <Leader>r :RunCode<CR>
+
+" vim-sneak
+map f <Plug>Sneak_s
+map F <Plug>Sneak_S
 
 " }}}
 " AutoGroups {{{
 " https://github.com/junegunn/fzf.vim/issues/123
-au VimEnter * highlight clear SignColumn
-au VimEnter * :Rooter
-au BufEnter Makefile setlocal noexpandtab
-au BufEnter *.sh setlocal tabstop=2|setlocal shiftwidth=2|setlocal softtabstop=2
-au BufEnter *.py setlocal tabstop=4
-au FileType terraform setlocal commentstring=#%s
-au FileType yaml setlocal tabstop=2|setlocal shiftwidth=2
-au FileType groovy setlocal tabstop=4|setlocal shiftwidth=4
-autocmd BufEnter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
-" }}}
-" Vim Plug {{{
-syntax enable
-call plug#begin('~/.vim/plugged')
-Plug 'altercation/vim-colors-solarized'
-Plug 'itchyny/lightline.vim'
-Plug 'mgee/lightline-bufferline'
-Plug 'maximbaz/lightline-ale'
-Plug 'junegunn/fzf.vim'
-Plug 'w0rp/ale'
-Plug 'tpope/vim-fugitive'
-Plug 'qpkorr/vim-bufkill'
-Plug 'airblade/vim-rooter'
-Plug 'universal-ctags/ctags'
-Plug 'majutsushi/tagbar'
-Plug 'hashivim/vim-terraform', { 'for': 'terraform' }
-Plug 'juliosueiras/vim-terraform-completion', { 'for': 'terraform' }
-Plug 'justinmk/vim-sneak'
-Plug 'pearofducks/ansible-vim'
-Plug 'fatih/vim-go', { 'for': ['go', 'gohtmltmpl'], 'do': ':GoUpdateBinaries' }
-Plug 'prabirshrestha/async.vim'
-Plug 'prabirshrestha/vim-lsp'
-Plug 'yggdroot/indentline'
-Plug 'yuttie/comfortable-motion.vim'
-call plug#end()
+augroup vimrc
+    autocmd!
 
-colorscheme solarized
+    autocmd VimEnter * highlight clear SignColumn
+    autocmd VimEnter * :Rooter
+
+    " Project related workarounds for ansible
+    autocmd BufRead,BufNewFile */ansible/*.yaml set filetype=yaml.ansible
+
+    " NerdTree
+    autocmd BufEnter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
+
+    " Override tabs/spaces.
+    autocmd FileType python setlocal tabstop=4 shiftwidth=4 softtabstop=4 expandtab
+    autocmd FileType javascript,json,javascript.jsx,ruby,yaml setlocal tabstop=2 shiftwidth=2 softtabstop=2 expandtab
+augroup end
+" 
 " }}}
 " Lightline {{{
 let g:lightline = {
@@ -137,7 +152,7 @@ let g:lightline = {
     \             [ 'readonly' ],
     \             [ 'buffers' ],
     \           ],
-    \   'right': [ [ 'fileencoding', 'filetype', 'percent', 'lineinfo' ],
+    \   'right': [ [ 'filetype', 'percent', 'lineinfo' ],
     \              [ 'linter_errors', 'linter_warnings', 'linter_ok' ]
     \            ]
     \ },
@@ -189,4 +204,7 @@ let g:indentLine_char = '|'
 let g:comfortable_motion_scroll_down_key = "j"
 let g:comfortable_motion_scroll_up_key = "k"
 " }}}
+"
+" pearofducks/ansible-vim
+let g:ansible_unindent_after_newline = 1
 " vim:foldmethod=marker:foldlevel=0
