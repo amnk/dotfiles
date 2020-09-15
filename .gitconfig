@@ -2,11 +2,15 @@
         path = .gitconfig_personal
 [includeIf "gitdir:/Volumes/src/**"]
         path = .gitconfig_personal
-[includeIf "gitdir:~/work/me-project/**"]
-        path = ~/work/me-project/.gitconfig
+[includeIf "gitdir:~/work/me/**"]
+        path = ~/work/me/.gitconfig_work
 [status]
-	submoduleSummary = true
+	submoduleSummary = false
 [branch]
 	autosetupmerge = always
 [push]
 	default = current
+[github]
+	user = amnk
+[diff "sopsdiffer"]
+	textconv = sops -d

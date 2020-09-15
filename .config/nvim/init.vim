@@ -8,26 +8,35 @@ endif
 " }}}
 " Vim Plug {{{
 call plug#begin('~/.config/nvim/plugged')
-Plug '0x84/vim-coderunner'
+"Plug '0x84/vim-coderunner'
 Plug 'airblade/vim-rooter'
 Plug 'altercation/vim-colors-solarized'
+"Plug 'autozimu/LanguageClient-neovim', {
+"    \ 'branch': 'next',
+"    \ 'do': 'bash install.sh',
+"    \ }
+Plug 'editorconfig/editorconfig-vim'
 Plug 'fatih/vim-go', { 'for': ['go', 'gohtmltmpl'], 'do': ':GoUpdateBinaries' }
 Plug 'hashivim/vim-terraform', { 'for': 'terraform' }
 Plug 'itchyny/lightline.vim'
-Plug 'juliosueiras/vim-terraform-completion', { 'for': 'terraform' }
+Plug 'josa42/vim-lightline-coc'
+"Plug 'juliosueiras/vim-terraform-completion', { 'for': 'terraform' }
 Plug 'junegunn/fzf.vim'
 Plug 'justinmk/vim-sneak'
 Plug 'majutsushi/tagbar'
-Plug 'maximbaz/lightline-ale'
+"Plug 'maximbaz/lightline-ale'
 Plug 'mgee/lightline-bufferline'
 Plug 'pearofducks/ansible-vim'
-Plug 'prabirshrestha/async.vim'
-Plug 'prabirshrestha/vim-lsp'
 Plug 'tpope/vim-fugitive'
+"Plug 'towolf/vim-helm'
 Plug 'universal-ctags/ctags'
-Plug 'w0rp/ale'
-Plug 'yggdroot/indentline'
+"Plug 'w0rp/ale'
+"Plug 'yggdroot/indentline'
+"Plug 'rust-lang/rust.vim', { 'for': ['rust'] }
 Plug 'yuttie/comfortable-motion.vim'
+"Plug 'flazz/vim-colorschemes'
+Plug 'arcticicestudio/nord-vim'
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
 call plug#end()
 " }}}
 
@@ -35,6 +44,11 @@ call plug#end()
 if !has("gui_running")
     set mouse=
 endif
+
+"if has('termguicolors')
+"  set termguicolors
+"endif
+
 set autoindent              " Carry over indenting from previous line
 set background=dark
 set backspace=2
@@ -60,7 +74,7 @@ set showmatch               " Hilight matching braces/parens/etc.
 set visualbell t_vb=        " No flashing or beeping at all
 set wildmenu                " visual autocomplete
 set nofoldenable            " no automated fold
-colorscheme solarized
+colorscheme nord
 " }}}
 " Keybindings {{{
 
@@ -80,7 +94,6 @@ nmap <Leader>9 <Plug>lightline#bufferline#go(9)
 nmap <Leader>0 <Plug>lightline#bufferline#go(10)
 
 " Maybe just install 'tpope/vim-unimpaired' ?
-" Move between open buffers.
 nmap [b :bprev<CR>
 nmap ]b :bnext<CR>
 nmap [B :bfirst<CR>
@@ -89,6 +102,8 @@ nmap [q :cprevious<CR>
 nmap ]q :cnext<CR>
 nmap [Q :cfirst<CR>
 nmap ]Q :clast<CR>
+nmap [l :lprev<CR>
+nmap ]l :lnext<CR>
 
 " w0rp/ale keys
 nmap <silent> [c <Plug>(ale_previous_wrap)
@@ -114,7 +129,7 @@ nnoremap <leader>gst :Gstatus<CR>
 nnoremap <F8> :TagbarToggle<CR>
 
 " indentLine
-nnoremap <Leader>i :IndentLinesToggle<CR>
+"nnoremap <Leader>i :IndentLinesToggle<CR>
 
 " 0x84/vim-coderunner
 nnoremap <Leader>r :RunCode<CR>
@@ -123,6 +138,8 @@ nnoremap <Leader>r :RunCode<CR>
 map f <Plug>Sneak_s
 map F <Plug>Sneak_S
 
+" Go related ones
+au FileType go nmap <F10> :GoTest -short<cr>
 " }}}
 " AutoGroups {{{
 " https://github.com/junegunn/fzf.vim/issues/123
@@ -130,7 +147,6 @@ augroup vimrc
     autocmd!
 
     autocmd VimEnter * highlight clear SignColumn
-    autocmd VimEnter * :Rooter
 
     " Project related workarounds for ansible
     autocmd BufRead,BufNewFile */ansible/*.yaml set filetype=yaml.ansible
@@ -140,6 +156,7 @@ augroup vimrc
 
     " Override tabs/spaces.
     autocmd FileType python setlocal tabstop=4 shiftwidth=4 softtabstop=4 expandtab
+    autocmd FileType python let b:coc_root_patterns = ['.git', '.env']
     autocmd FileType javascript,json,javascript.jsx,ruby,yaml setlocal tabstop=2 shiftwidth=2 softtabstop=2 expandtab
 augroup end
 " 
@@ -153,13 +170,14 @@ let g:lightline = {
     \             [ 'buffers' ],
     \           ],
     \   'right': [ [ 'filetype', 'percent', 'lineinfo' ],
-    \              [ 'linter_errors', 'linter_warnings', 'linter_ok' ]
+    \              [ 'linter_errors', 'linter_warnings', 'linter_ok', 'linter_status' ]
     \            ]
     \ },
     \ 'component_expand': {
-    \   'linter_warnings': 'lightline#ale#warnings',
-    \   'linter_errors': 'lightline#ale#errors',
-    \   'linter_ok': 'lightline#ale#ok',
+    \   'linter_warnings': 'lightline#coc#warnings',
+    \   'linter_errors': 'lightline#coc#errors',
+    \   'linter_ok': 'lightline#coc#ok',
+    \   'linter_status' : 'lightline#coc#status',
     \   'buffers': 'lightline#bufferline#buffers',
     \ },
     \ 'component_type': {
@@ -180,9 +198,12 @@ let g:lightline#bufferline#show_number=2
 " }}}
 " fzf {{{
 set rtp+=/usr/local/opt/fzf
+let g:fzf_layout = { 'down': '~30%' }
+command! -bang -nargs=? -complete=dir Files
+  \ call fzf#vim#files(<q-args>, &columns > 80 ? fzf#vim#with_preview() : {}, <bang>0)
 " }}}
 " Rooter {{{
-let g:rooter_patterns = ['.git/', '.python-version']
+let g:rooter_patterns = ['vendor/', '.git/', '.python-version']
 " }}}
 " tagbar {{{
 "nmap <F8> :TagbarToggle<CR>
@@ -195,6 +216,10 @@ let g:terraform_fmt_on_save=1
 " w0rp/ale {{{
 let g:ale_sign_column_always = 1
 let g:ale_lint_on_text_changed = 1
+
+let g:ale_rust_cargo_use_check = 1
+let g:ale_rust_cargo_check_tests = 1
+let g:ale_rust_cargo_use_clippy = 1
 " }}}
 " yggdroot/indentline {{{
 let g:indentLine_setColors = 0
@@ -207,4 +232,32 @@ let g:comfortable_motion_scroll_up_key = "k"
 "
 " pearofducks/ansible-vim
 let g:ansible_unindent_after_newline = 1
+" fatih/vim-go
+let g:go_highlight_build_constraints = 1
+let g:go_highlight_extra_types = 1
+let g:go_highlight_fields = 1
+let g:go_highlight_functions = 1
+let g:go_highlight_methods = 1
+let g:go_highlight_operators = 1
+let g:go_highlight_structs = 1
+let g:go_highlight_types = 1
+let g:go_auto_sameids = 1
+let g:go_gopls_enabled = 0
+let g:go_def_mapping_enabled = 0
+" autozimu/LanguageClient-neovim
+"let g:LanguageClient_serverCommands = {
+"    \ 'rust': ['~/.cargo/bin/rustup', 'run', 'stable', 'rls'],
+"    \ 'python': ['/usr/local/bin/pyls'],
+"    \ 'go': ['gopls']
+"    \ }
 " vim:foldmethod=marker:foldlevel=0
+"
+" 
+" Remap keys for gotos
+nmap <silent> gd <Plug>(coc-definition)
+nmap <silent> gy <Plug>(coc-type-definition)
+nmap <silent> gi <Plug>(coc-implementation)
+nmap <silent> gr <Plug>(coc-references)
+" Use `[c` and `]c` to navigate diagnostics
+nmap <silent> [c <Plug>(coc-diagnostic-prev)
+nmap <silent> ]c <Plug>(coc-diagnostic-next)

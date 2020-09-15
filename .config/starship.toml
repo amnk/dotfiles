@@ -1,0 +1,112 @@
+# Don't print a new line at the start of the prompt
+add_newline = false
+
+# Replace the "❯" symbol in the prompt with "➜"
+[character]      # The name of the module we are configuring is "character"
+symbol = "➜"     # The "symbol" segment is being set to "➜"
+
+[aws]
+style = "bold blue"
+symbol = "🅰 "
+displayed_items = "profile"
+
+[kubernetes]
+symbol = "⛵ "
+style = "green"
+disabled = false
+
+[git_branch]
+symbol = "🌱 "
+truncation_length = 20
+truncation_symbol = "..."
+
+[git_commit]
+commit_hash_length = 6
+
+[git_status]
+disabled = true
+
+[battery]
+disabled = true
+
+[conda]
+disabled = true
+
+[crystal]
+disabled = true
+
+[directory]
+truncation_length = 8
+truncate_to_repo = false
+
+[docker_context]
+disabled = true
+
+[dotnet]
+disabled = true
+
+[elixir]
+disabled = true
+
+[elm]
+disabled = true
+
+[erlang]
+disabled = true
+
+[golang]
+disabled = true
+
+[java]
+disabled = true
+
+[jobs]
+disabled = true
+
+[julia]
+disabled = true
+
+[memory_usage]
+disabled = true
+
+[hg_branch]
+disabled = true
+
+[nim]
+disabled = true
+
+[nix_shell]
+disabled = true
+
+[nodejs]
+disabled = true
+
+[package]
+disabled = true
+
+[ocaml]
+disabled = true
+
+[php]
+disabled = true
+
+[ruby]
+disabled = true
+
+[rust]
+disabled = true
+
+[singularity]
+disabled = true
+
+[terraform]
+disabled = true
+
+[time]
+disabled = true
+
+[zig]
+disabled = true
+
+[purescript]
+disabled = true
