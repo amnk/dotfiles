@@ -59,8 +59,13 @@ fi
 bindkey "^[m" copy-prev-shell-word
 
 #############################################################################
-# Load aliases
+# Load additional files
+#
+# Aliases
 source $HOME/.aliases
+
+# ASDF
+. $HOME/.asdf/asdf.sh
 #############################################################################
 
 

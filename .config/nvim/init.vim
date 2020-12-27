@@ -15,12 +15,12 @@ Plug 'altercation/vim-colors-solarized'
 "    \ 'branch': 'next',
 "    \ 'do': 'bash install.sh',
 "    \ }
-Plug 'editorconfig/editorconfig-vim'
 Plug 'fatih/vim-go', { 'for': ['go', 'gohtmltmpl'], 'do': ':GoUpdateBinaries' }
 Plug 'hashivim/vim-terraform', { 'for': 'terraform' }
 Plug 'itchyny/lightline.vim'
 Plug 'josa42/vim-lightline-coc'
 "Plug 'juliosueiras/vim-terraform-completion', { 'for': 'terraform' }
+Plug 'junegunn/fzf'
 Plug 'junegunn/fzf.vim'
 Plug 'justinmk/vim-sneak'
 Plug 'majutsushi/tagbar'
@@ -197,7 +197,7 @@ let g:lightline = {
 let g:lightline#bufferline#show_number=2
 " }}}
 " fzf {{{
-set rtp+=/usr/local/opt/fzf
+set rtp+=~/.asdf/shims/fzf
 let g:fzf_layout = { 'down': '~30%' }
 command! -bang -nargs=? -complete=dir Files
   \ call fzf#vim#files(<q-args>, &columns > 80 ? fzf#vim#with_preview() : {}, <bang>0)
