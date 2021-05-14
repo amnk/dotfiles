@@ -18,15 +18,11 @@ Plug 'altercation/vim-colors-solarized'
 Plug 'fatih/vim-go', { 'for': ['go', 'gohtmltmpl'], 'do': ':GoUpdateBinaries' }
 Plug 'hashivim/vim-terraform', { 'for': 'terraform' }
 Plug 'itchyny/lightline.vim'
-Plug 'josa42/vim-lightline-coc'
 "Plug 'juliosueiras/vim-terraform-completion', { 'for': 'terraform' }
 Plug 'junegunn/fzf'
 Plug 'junegunn/fzf.vim'
 Plug 'justinmk/vim-sneak'
-Plug 'majutsushi/tagbar'
-"Plug 'maximbaz/lightline-ale'
 Plug 'mgee/lightline-bufferline'
-Plug 'pearofducks/ansible-vim'
 Plug 'tpope/vim-fugitive'
 "Plug 'towolf/vim-helm'
 Plug 'universal-ctags/ctags'
@@ -36,7 +32,6 @@ Plug 'universal-ctags/ctags'
 Plug 'yuttie/comfortable-motion.vim'
 "Plug 'flazz/vim-colorschemes'
 Plug 'arcticicestudio/nord-vim'
-Plug 'neoclide/coc.nvim', {'branch': 'release'}
 call plug#end()
 " }}}
 
@@ -81,18 +76,6 @@ colorscheme nord
 " Remap <Leader>
 let g:mapleader=','
 
-" Quickly switch buffers
-nmap <Leader>1 <Plug>lightline#bufferline#go(1)
-nmap <Leader>2 <Plug>lightline#bufferline#go(2)
-nmap <Leader>3 <Plug>lightline#bufferline#go(3)
-nmap <Leader>4 <Plug>lightline#bufferline#go(4)
-nmap <Leader>5 <Plug>lightline#bufferline#go(5)
-nmap <Leader>6 <Plug>lightline#bufferline#go(6)
-nmap <Leader>7 <Plug>lightline#bufferline#go(7)
-nmap <Leader>8 <Plug>lightline#bufferline#go(8)
-nmap <Leader>9 <Plug>lightline#bufferline#go(9)
-nmap <Leader>0 <Plug>lightline#bufferline#go(10)
-
 " Maybe just install 'tpope/vim-unimpaired' ?
 nmap [b :bprev<CR>
 nmap ]b :bnext<CR>
@@ -116,23 +99,11 @@ nnoremap <Leader>t :Tags<CR>
 nnoremap <Leader>w :Windows<CR>
 nnoremap <Leader>g :Rg<CR>
 
-" Git shortcuts
-nnoremap <leader>ga :Git add %<CR><CR>
-nnoremap <leader>gb :Gblame<CR>
-nnoremap <leader>gc :Gcommit -v -q<CR>
-nnoremap <leader>gca :Gcommit --amend --noedit<CR>
-nnoremap <leader>gcon :Git checkout -b<SPACE>
-nnoremap <leader>ggp :Gpush -u origin<CR>
-nnoremap <leader>gst :Gstatus<CR>
-
 " Tagbar
 nnoremap <F8> :TagbarToggle<CR>
 
 " indentLine
 "nnoremap <Leader>i :IndentLinesToggle<CR>
-
-" 0x84/vim-coderunner
-nnoremap <Leader>r :RunCode<CR>
 
 " vim-sneak
 map f <Plug>Sneak_s
@@ -170,17 +141,9 @@ let g:lightline = {
     \             [ 'buffers' ],
     \           ],
     \   'right': [ [ 'filetype', 'percent', 'lineinfo' ],
-    \              [ 'linter_errors', 'linter_warnings', 'linter_ok', 'linter_status' ]
     \            ]
     \ },
-    \ 'component_expand': {
-    \   'linter_warnings': 'lightline#coc#warnings',
-    \   'linter_errors': 'lightline#coc#errors',
-    \   'linter_ok': 'lightline#coc#ok',
-    \   'linter_status' : 'lightline#coc#status',
-    \   'buffers': 'lightline#bufferline#buffers',
-    \ },
-    \ 'component_type': {
+     \ 'component_type': {
     \   'linter_warnings': 'warning',
     \   'linter_errors': 'error',
     \   'linter_ok': 'left',
@@ -244,20 +207,5 @@ let g:go_highlight_types = 1
 let g:go_auto_sameids = 1
 let g:go_gopls_enabled = 0
 let g:go_def_mapping_enabled = 0
-" autozimu/LanguageClient-neovim
-"let g:LanguageClient_serverCommands = {
-"    \ 'rust': ['~/.cargo/bin/rustup', 'run', 'stable', 'rls'],
-"    \ 'python': ['/usr/local/bin/pyls'],
-"    \ 'go': ['gopls']
-"    \ }
-" vim:foldmethod=marker:foldlevel=0
-"
-" 
-" Remap keys for gotos
-nmap <silent> gd <Plug>(coc-definition)
-nmap <silent> gy <Plug>(coc-type-definition)
-nmap <silent> gi <Plug>(coc-implementation)
-nmap <silent> gr <Plug>(coc-references)
-" Use `[c` and `]c` to navigate diagnostics
-nmap <silent> [c <Plug>(coc-diagnostic-prev)
-nmap <silent> ]c <Plug>(coc-diagnostic-next)
+
+inoremap jh <Esc>

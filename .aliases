@@ -97,15 +97,6 @@ kfor() {
     kubectl port-forward -n "$arg_pair[@]" "$port"
 }
 
-# [kcns] context set default namespace
-kcns() {
-    local ns="$1"
-    if [ -z "$ns" ]; then
-        ns="$(kubectl get ns | _inline_fzf | awk '{print $1}')"
-    fi
-    [ -z "$ns" ] && printf "kcns: no namespace selected/found.\nUsage: kcns [NAMESPACE]\n" && return
-    kubectl config set-context "$(kubectl config current-context)" --namespace="${ns}"
-}
 #############################################################################
 # Aliases
 #
@@ -116,8 +107,6 @@ alias tf="terraform"
 alias tfac="terraform apply -compact-warnings"
 alias nv="nvim"
 alias vim="nvim"
-alias sm1e="sso merkle-m1e"
-alias sdlz="sso merkle-dlz"
 # kubectl
 alias k='kubectl'
 alias kg='kubectl get'
@@ -129,7 +118,6 @@ alias kgi='kubectl get ingress'
 alias kgall='kubectl get ingress,service,deployment,pod'
 alias kpf='kubectl port-forward '
 alias kp='kubectl proxy'
-
 
 # Git
 # (sorted alphabetically)
@@ -190,14 +178,6 @@ alias gds='git diff --staged'
 alias gdt='git diff-tree --no-commit-id --name-only -r'
 alias gdw='git diff --word-diff'
 
-function gdnolock() {
-  git diff "$@" ":(exclude)package-lock.json" ":(exclude)*.lock"
-}
-compdef _git gdnolock=git-diff
-
-function gdv() { git diff -w "$@" | view - }
-compdef _git gdv=git-diff
-
 alias gf='git fetch'
 alias gfa='git fetch --all --prune'
 alias gfo='git fetch origin'
@@ -207,67 +187,15 @@ alias gfg='git ls-files | grep'
 alias gg='git gui citool'
 alias gga='git gui citool --amend'
 
-function ggf() {
-  [[ "$#" != 1 ]] && local b="$(git_current_branch)"
-  git push --force origin "${b:=$1}"
-}
-compdef _git ggf=git-checkout
-function ggfl() {
-  [[ "$#" != 1 ]] && local b="$(git_current_branch)"
-  git push --force-with-lease origin "${b:=$1}"
-}
-compdef _git ggfl=git-checkout
-
-function ggl() {
-  if [[ "$#" != 0 ]] && [[ "$#" != 1 ]]; then
-    git pull origin "${*}"
-  else
-    [[ "$#" == 0 ]] && local b="$(git_current_branch)"
-    git pull origin "${b:=$1}"
-  fi
-}
-compdef _git ggl=git-checkout
-
-function ggp() {
-  if [[ "$#" != 0 ]] && [[ "$#" != 1 ]]; then
-    git push origin "${*}"
-  else
-    [[ "$#" == 0 ]] && local b="$(git_current_branch)"
-    git push origin "${b:=$1}"
-  fi
-}
-compdef _git ggp=git-checkout
-
-function ggpnp() {
-  if [[ "$#" == 0 ]]; then
-    ggl && ggp
-  else
-    ggl "${*}" && ggp "${*}"
-  fi
-}
-compdef _git ggpnp=git-checkout
-
-function ggu() {
-  [[ "$#" != 1 ]] && local b="$(git_current_branch)"
-  git pull --rebase origin "${b:=$1}"
-}
-compdef _git ggu=git-checkout
-
-alias ggpur='ggu'
 alias ggpull='git pull origin "$(git_current_branch)"'
 alias ggpush='git push origin "$(git_current_branch)"'
 
 alias ggsup='git branch --set-upstream-to=origin/$(git_current_branch)'
 alias gpsup='git push --set-upstream origin $(git_current_branch)'
 
-alias ghh='git help'
-
 alias gignore='git update-index --assume-unchanged'
 alias gignored='git ls-files -v | grep "^[[:lower:]]"'
 alias git-svn-dcommit-push='git svn dcommit && git push github $(git_main_branch):svntrunk'
-
-alias gk='\gitk --all --branches'
-alias gke='\gitk --all $(git log -g --pretty=%h)'
 
 alias gl='git pull'
 alias glg='git log --stat'
@@ -289,7 +217,6 @@ alias gm='git merge'
 alias gmom='git merge origin/$(git_main_branch)'
 alias gmt='git mergetool --no-prompt'
 alias gmtvim='git mergetool --no-prompt --tool=vimdiff'
-alias gmum='git merge upstream/$(git_main_branch)'
 alias gma='git merge --abort'
 
 alias gp='git push'
@@ -312,7 +239,6 @@ alias grbs='git rebase --skip'
 alias grev='git revert'
 alias grh='git reset'
 alias grhh='git reset --hard'
-alias groh='git reset origin/$(git_current_branch) --hard'
 alias grm='git rm'
 alias grmc='git rm --cached'
 alias grmv='git remote rename'
@@ -320,7 +246,6 @@ alias grrm='git remote remove'
 alias grs='git restore'
 alias grset='git remote set-url'
 alias grss='git restore --source'
-alias grt='cd "$(git rev-parse --show-toplevel || echo .)"'
 alias gru='git reset --'
 alias grup='git remote update'
 alias grv='git remote -v'
@@ -330,15 +255,8 @@ alias gsd='git svn dcommit'
 alias gsh='git show'
 alias gsi='git submodule init'
 alias gsps='git show --pretty=short --show-signature'
-alias gsr='git svn rebase'
 alias gss='git status -s'
 alias gst='git status'
-
-# use the default stash push on git 2.13 and newer
-autoload -Uz is-at-least
-is-at-least 2.13 "$(git --version 2>/dev/null | awk '{print $3}')" \
-  && alias gsta='git stash push' \
-  || alias gsta='git stash save'
 
 alias gstaa='git stash apply'
 alias gstc='git stash clear'
@@ -354,7 +272,6 @@ alias gswc='git switch -c'
 
 alias gts='git tag -s'
 alias gtv='git tag | sort -V'
-alias gtl='gtl(){ git tag --sort=-v:refname -n -l "${1}*" }; noglob gtl'
 
 alias gunignore='git update-index --no-assume-unchanged'
 alias gunwip='git log -n 1 | grep -q -c "\-\-wip\-\-" && git reset HEAD~1'
@@ -372,18 +289,3 @@ alias gamc='git am --continue'
 alias gams='git am --skip'
 alias gama='git am --abort'
 alias gamscp='git am --show-current-patch'
-
-function grename() {
-  if [[ -z "$1" || -z "$2" ]]; then
-    echo "Usage: $0 old_branch new_branch"
-    return 1
-  fi
-
-  # Rename branch locally
-  git branch -m "$1" "$2"
-  # Rename branch in origin remote
-  if git push origin :"$1"; then
-    git push --set-upstream origin "$2"
-  fi
-}
-

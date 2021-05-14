@@ -1,8 +1,11 @@
 fzf 0.22.0
 helm 3.2.4
 helmfile 0.124.0
+krew v0.4.1
+kubectl 1.21.1
 neovim 0.4.4
 ripgrep 12.1.1
+sops 3.7.1
 starship 0.44.0
 terraform 0.13.4
 terragrunt 0.26.3
