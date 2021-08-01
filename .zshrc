@@ -83,6 +83,5 @@ export FZF_DEFAULT_COMMAND='fd --type file --follow --hidden --exclude .git'
 #############################################################################
 eval "$(pyenv init -)"
 eval "$(pyenv virtualenv-init -)"
-export PATH="/usr/local/opt/mysql-client/bin:$PATH"
 
 eval "$(starship init zsh)"
