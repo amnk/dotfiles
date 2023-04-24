@@ -1,0 +1,39 @@
+# General
+alias nv='nvim'
+alias tf='terraform'
+
+# kubectl
+alias k='kubectl'
+alias kg='kubectl get'
+alias kgp='kubectl get pods'
+alias kgpr='kubectl get pods --field-selector status.phase=Running'
+alias kgns='kubectl get namespaces'
+alias kgs='kubectl get services'
+alias kgi='kubectl get ingress'
+alias kgall='kubectl get ingress,service,deployment,pod'
+alias kpf='kubectl port-forward '
+alias kp='kubectl proxy'
+
+alias kubeval='kubeval --schema-location https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master --strict'
+
+# Git
+alias g='git'
+alias ga='git add'
+alias gca='git commit -v -a'
+alias gca!='git commit -v -a --amend'
+alias gcan!='git commit -v -a --no-edit --amend'
+
+alias gco='git checkout'
+
+alias gd='git diff'
+
+alias gf='git fetch'
+alias gfa='git fetch --all --prune'
+alias gfo='git fetch origin'
+
+alias gm='git merge'
+
+alias gp='git push'
+
+alias gss='git status -s'
+alias gst='git status'

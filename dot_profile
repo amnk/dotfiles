@@ -1,0 +1,7 @@
+
+[ -d "${HOME}/.asdf" ] && ASDF_DATA_DIR=$HOME/.asdf && source $ASDF_DATA_DIR/asdf.sh
+[ -d "${HOME}/.krew/bin" ] && export PATH="${PATH}:${HOME}/.krew/bin"
+[ -d "${HOME}/.local/bin" ] && export PATH="$PATH:${HOME}/.local/bin"
+[ -f "${HOME}/.aliases" ] && source ~/.aliases
+
+#eval "$(starship init zsh)"
